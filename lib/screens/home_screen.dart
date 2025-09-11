@@ -8,6 +8,7 @@ import 'services_screen.dart' show ServicesScreen;
 import 'profile_screen.dart';
 import '../widgets/onboarding_tips.dart';
 import 'tracking_screen.dart';
+import 'service_form_screen.dart';
 
 /// 🔍 Search Delegate
 class AppSearchDelegate extends SearchDelegate<String> {

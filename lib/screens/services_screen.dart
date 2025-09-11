@@ -1,6 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import '../models/category.dart';
+import 'package:my_app/screens/service_form_screen.dart';
+import 'service_form_screen.dart';
 
 class ServicesScreen extends StatelessWidget {
   final Category category;
@@ -36,9 +38,6 @@ class ServicesScreen extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Form Link:'),
-                            SelectableText(service.formUrl, style: TextStyle(color: Colors.blue)),
-                            SizedBox(height: 12),
                             Text('Tracking ID:'),
                             SelectableText(trackingId, style: TextStyle(color: Colors.deepPurple)),
                             SizedBox(height: 12),
