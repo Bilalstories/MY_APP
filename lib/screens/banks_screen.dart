@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import '../data/categories.dart';
-import 'categories_screen.dart' show ServiceFormScreen;
-import 'package:my_app/data/categories.dart';
 import 'service_form_screen.dart';
 
 class BanksScreen extends StatelessWidget {
@@ -9,7 +7,10 @@ class BanksScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bankCat = categories.firstWhere((c) => c.name.toLowerCase() == 'bank', orElse: () => categories[0]);
+    final bankCat = categories.firstWhere(
+      (c) => c.name.toLowerCase().contains('bank'),
+      orElse: () => categories[0],
+    );
     return Scaffold(
       appBar: AppBar(title: const Text('Bank Services')),
       body: ListView.builder(
@@ -20,8 +21,14 @@ class BanksScreen extends StatelessWidget {
           return Card(
             child: ListTile(
               title: Text(s.name),
-              subtitle: Text('Fee ₹${s.fee.toStringAsFixed(0)}'),
-              trailing: ElevatedButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (c) => ServiceFormScreen(service: s))), child: const Text('Apply')),
+              subtitle: Text('Fee ₹${s.price.toStringAsFixed(0)}'), // s.fee -> s.price
+              trailing: ElevatedButton(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (c) => ServiceFormScreen(service: s)),
+                ),
+                child: const Text('Apply'),
+              ),
             ),
           );
         },
