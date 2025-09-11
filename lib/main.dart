@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'theme_provider.dart';
 import 'screens/home_screen.dart';
+import 'screens/categories_screen.dart';
 
 void main() {
   runApp(
@@ -20,28 +21,33 @@ class MyApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return MaterialApp(
-  debugShowCheckedModeBanner: false,
-  title: 'My Services App',
-  
-  // Yahan add karo
-  themeMode: themeProvider.materialThemeMode,
+      debugShowCheckedModeBanner: false,
+      title: 'My Services App',
 
-  theme: ThemeData(
-    brightness: Brightness.light,
-    colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-    scaffoldBackgroundColor: Colors.white,
-    useMaterial3: true,
-  ),
-  darkTheme: ThemeData(
-    brightness: Brightness.dark,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: Colors.deepPurple,
-      brightness: Brightness.dark,
-    ),
-    scaffoldBackgroundColor: Colors.black,
-    useMaterial3: true,
-  ),
-  home: const HomeScreen(),
-);
+      // Theme mode controlled by ThemeProvider
+      themeMode: themeProvider.materialThemeMode,
+
+      // Light Theme
+      theme: ThemeData(
+        brightness: Brightness.light,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        scaffoldBackgroundColor: Colors.white,
+        useMaterial3: true,
+      ),
+
+      // Dark Theme
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.dark,
+        ),
+        scaffoldBackgroundColor: Colors.black,
+        useMaterial3: true,
+      ),
+
+      // Starting screen
+      home: const HomeScreen(),
+    );
   }
 }

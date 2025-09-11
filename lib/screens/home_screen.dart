@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../widgets/carousel_slider.dart';
 import '../data/categories.dart';
-import 'categories_screen.dart' show CategoriesScreen;
+import 'categories_screen.dart';
 import 'banks_screen.dart';
 import 'schemes_screen.dart';
-import 'services_screen.dart' show ServicesScreen;
+import 'services_screen.dart';
 import 'profile_screen.dart';
 import '../widgets/onboarding_tips.dart';
 import 'tracking_screen.dart';
@@ -52,14 +52,14 @@ class AppSearchDelegate extends SearchDelegate<String> {
           title: Text(item),
           onTap: () {
             if (item == 'Categories') {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const CategoriesScreen()));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => CategoriesScreen()));
             } else if (item == 'Banks') {
               Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => const BanksScreen()));
+                  context, MaterialPageRoute(builder: (_) => BanksScreen()));
             } else if (item == 'Schemes') {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const SchemesScreen()));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (_) => SchemesScreen()));
             } else {
               final cat = categories.firstWhere(
                   (c) => c.name.toLowerCase() == item.toLowerCase(),
@@ -67,7 +67,8 @@ class AppSearchDelegate extends SearchDelegate<String> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => ServicesScreen(category: cat)));
+                      builder: (_) => ServicesScreen(
+                          category: cat.name, services: cat.services)));
             }
           },
         );
@@ -108,12 +109,18 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = [
-    const _HomeContent(), // main home content
-    const CategoriesScreen(),
-    const BanksScreen(),
-    const ProfileScreen(),
-  ];
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      const _HomeContent(), // main home content
+      CategoriesScreen(),
+      BanksScreen(),
+      ProfileScreen(),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -171,7 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-/// ✅ Home content (your original HomeScreen body)
+/// ✅ Home content (original HomeScreen body)
 class _HomeContent extends StatelessWidget {
   const _HomeContent({Key? key}) : super(key: key);
 
@@ -184,10 +191,7 @@ class _HomeContent extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              showSearch(
-                context: context,
-                delegate: AppSearchDelegate(),
-              );
+              showSearch(context: context, delegate: AppSearchDelegate());
             },
           ),
           IconButton(
@@ -195,25 +199,15 @@ class _HomeContent extends StatelessWidget {
             onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (c) => OnboardingTips(
-                        onFinish: () => Navigator.pop(c)))),
-          ),
+                    builder: (c) => OnboardingTips(onFinish: () => Navigator.pop(c))))),
           IconButton(
             icon: const Icon(Icons.qr_code),
             onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (c) => const TrackingScreen())),
-          ),
+                context, MaterialPageRoute(builder: (c) => TrackingScreen()))),
           IconButton(
             icon: const Icon(Icons.person),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
-            },
-          ),
+            onPressed: () => Navigator.push(
+                context, MaterialPageRoute(builder: (c) => ProfileScreen()))),
         ],
       ),
       body: SingleChildScrollView(
@@ -237,10 +231,8 @@ class _HomeContent extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleLarge),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (c) => const CategoriesScreen()));
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (c) => CategoriesScreen()));
                     },
                     child: const Text('All Categories'),
                   ),
@@ -253,14 +245,14 @@ class _HomeContent extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: Row(
                 children: [
-                  _buildQuickCard(
-                      context, Icons.category, "Categories", const CategoriesScreen()),
-                  const SizedBox(width: 12),
-                  _buildQuickCard(context, Icons.account_balance, "Banks",
-                      const BanksScreen()),
+                  _buildQuickCard(context, Icons.category, "Categories",
+                      CategoriesScreen()),
                   const SizedBox(width: 12),
                   _buildQuickCard(
-                      context, Icons.savings, "Schemes", const SchemesScreen()),
+                      context, Icons.account_balance, "Banks", BanksScreen()),
+                  const SizedBox(width: 12),
+                  _buildQuickCard(
+                      context, Icons.savings, "Schemes", SchemesScreen()),
                 ],
               ),
             ),
@@ -269,14 +261,11 @@ class _HomeContent extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: Row(
                 children: [
-                  _buildQuickCard(
-                      context,
-                      Icons.tour,
-                      "Take a tour",
+                  _buildQuickCard(context, Icons.tour, "Take a tour",
                       OnboardingTips(onFinish: () => Navigator.pop(context))),
                   const SizedBox(width: 12),
-                  _buildQuickCard(context, Icons.track_changes, "Track",
-                      const TrackingScreen()),
+                  _buildQuickCard(
+                      context, Icons.track_changes, "Track", TrackingScreen()),
                 ],
               ),
             ),
@@ -299,7 +288,8 @@ class _HomeContent extends StatelessWidget {
                     onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (ctx) => ServicesScreen(category: c))),
+                            builder: (ctx) => ServicesScreen(
+                                category: c.name, services: c.services))),
                     child: Container(
                       width: 120,
                       margin: const EdgeInsets.only(right: 12),
@@ -351,8 +341,8 @@ class _HomeContent extends StatelessWidget {
       BuildContext context, IconData icon, String label, Widget page) {
     return Expanded(
       child: GestureDetector(
-        onTap: () =>
-            Navigator.push(context, MaterialPageRoute(builder: (c) => page)),
+        onTap: () => Navigator.push(
+            context, MaterialPageRoute(builder: (c) => page)),
         child: Card(
           elevation: 3,
           shape:

@@ -1,14 +1,8 @@
 class Service {
   final String name;
-  final double fee;
-  // fields: list of maps like { 'key': 'field_key', 'label': 'Label', 'type': 'text' }
-  final List<Map<String, dynamic>> fields;
+  final double price;
 
-  Service({
-    required this.name,
-    required this.fee,
-    this.fields = const [],
-  });
+  Service({required this.name, required this.price});
 }
 
 class Category {
@@ -16,9 +10,5 @@ class Category {
   final String iconUrl;
   final List<Service> services;
 
-  Category({
-    required this.name,
-    required this.iconUrl,
-    required this.services,
-  });
+  Category({required this.name, required this.iconUrl, required this.services});
 }
