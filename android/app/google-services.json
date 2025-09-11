@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "827582841942",
+    "project_id": "my-forms-app-c889f",
+    "storage_bucket": "my-forms-app-c889f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:827582841942:android:898434ce552e8f7ff7e7f7",
+        "android_client_info": {
+          "package_name": "com.bilalpatelwriter.gms"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5t5xH9s4Jg1F5Gk3ZVh4eMfmeIfCLPyw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
