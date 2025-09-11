@@ -1,104 +1,11 @@
+// lib/screens/home_screen.dart
+
 import 'package:flutter/material.dart';
-import '../widgets/carousel_slider.dart';
-import '../data/categories.dart';
-import 'categories_screen.dart';
-import 'banks_screen.dart';
-import 'schemes_screen.dart';
-import 'services_screen.dart';
-import 'profile_screen.dart';
-import '../widgets/onboarding_tips.dart';
-import 'tracking_screen.dart';
-import 'service_form_screen.dart';
+import 'package:my_app/data/categories.dart';
+import 'package:my_app/screens/services_screen.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-/// 🔍 Search Delegate
-class AppSearchDelegate extends SearchDelegate<String> {
-  final List<String> allItems = [
-    'Categories',
-    'Banks',
-    'Schemes',
-    ...categories.map((c) => c.name),
-  ];
-
-  @override
-  List<Widget>? buildActions(BuildContext context) {
-    return [
-      if (query.isNotEmpty)
-        IconButton(
-          icon: const Icon(Icons.clear),
-          onPressed: () => query = '',
-        ),
-    ];
-  }
-
-  @override
-  Widget? buildLeading(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.arrow_back),
-      onPressed: () => close(context, ''),
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    final results = allItems
-        .where((item) => item.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-
-    return ListView.builder(
-      itemCount: results.length,
-      itemBuilder: (context, index) {
-        final item = results[index];
-        return ListTile(
-          title: Text(item),
-          onTap: () {
-            if (item == 'Categories') {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => CategoriesScreen()));
-            } else if (item == 'Banks') {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => BanksScreen()));
-            } else if (item == 'Schemes') {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => SchemesScreen()));
-            } else {
-              final cat = categories.firstWhere(
-                  (c) => c.name.toLowerCase() == item.toLowerCase(),
-                  orElse: () => categories.first);
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => ServicesScreen(
-                          category: cat.name, services: cat.services)));
-            }
-          },
-        );
-      },
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    final suggestions = allItems
-        .where((item) => item.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-
-    return ListView.builder(
-      itemCount: suggestions.length,
-      itemBuilder: (context, index) {
-        final suggestion = suggestions[index];
-        return ListTile(
-          title: Text(suggestion),
-          onTap: () {
-            query = suggestion;
-            showResults(context);
-          },
-        );
-      },
-    );
-  }
-}
-
-/// 🏠 Home Screen with bottom navigation
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -107,257 +14,170 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
+  late BannerAd _bannerAd;
+  bool _isAdLoaded = false;
+  final CarouselController _controller = CarouselController();
 
-  late final List<Widget> _screens;
+  final List<String> images = [
+    'https://via.placeholder.com/350x150?text=Banner+1',
+    'https://via.placeholder.com/350x150?text=Banner+2',
+    'https://via.placeholder.com/350x150?text=Banner+3',
+  ];
 
   @override
   void initState() {
     super.initState();
-    _screens = [
-      const _HomeContent(), // main home content
-      CategoriesScreen(),
-      BanksScreen(),
-      ProfileScreen(),
-    ];
+    _initBannerAd();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: _screens[_currentIndex],
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(25),
-            topRight: Radius.circular(25),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              spreadRadius: 2,
-            )
-          ],
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) => setState(() => _currentIndex = index),
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          selectedItemColor: Colors.deepPurple,
-          unselectedItemColor: Colors.grey,
-          showUnselectedLabels: true,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home_rounded),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.category_outlined),
-              activeIcon: Icon(Icons.category_rounded),
-              label: 'Categories',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance_outlined),
-              activeIcon: Icon(Icons.account_balance_rounded),
-              label: 'Banks',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person_rounded),
-              label: 'Profile',
-            ),
-          ],
-        ),
+  _initBannerAd() {
+    _bannerAd = BannerAd(
+      size: AdSize.banner,
+      adUnitId: BannerAd.testAdUnitId,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          print('Ad failed to load: $error');
+        },
       ),
+      request: const AdRequest(),
     );
+    _bannerAd.load();
   }
-}
 
-/// ✅ Home content (original HomeScreen body)
-class _HomeContent extends StatelessWidget {
-  const _HomeContent({Key? key}) : super(key: key);
+  @override
+  void dispose() {
+    _bannerAd.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Services App'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              showSearch(context: context, delegate: AppSearchDelegate());
+    final topCategories = categories.take(4).toList();
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const SizedBox(height: 16),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              'Top Services',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.left,
+            ),
+          ),
+          const SizedBox(height: 10),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 2.0,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
+            itemCount: topCategories.length,
+            itemBuilder: (context, index) {
+              final cat = topCategories[index];
+              return InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (c) => ServicesScreen(category: cat),
+                    ),
+                  );
+                },
+                child: Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(
+                      child: Text(
+                        cat.name,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ),
+              );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (c) => OnboardingTips(onFinish: () => Navigator.pop(c))))),
-          IconButton(
-            icon: const Icon(Icons.qr_code),
-            onPressed: () => Navigator.push(
-                context, MaterialPageRoute(builder: (c) => TrackingScreen()))),
-          IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: () => Navigator.push(
-                context, MaterialPageRoute(builder: (c) => ProfileScreen()))),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 12),
-            CarouselSlider(imagePaths: [
-              'assets/sample_image.png',
-              'assets/slide1.png',
-              'assets/slide2.png',
-              'assets/slide3.png',
-            ]),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Quick Actions',
-                      style: Theme.of(context).textTheme.titleLarge),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (c) => CategoriesScreen()));
-                    },
-                    child: const Text('All Categories'),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            // Quick action cards row
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: Row(
-                children: [
-                  _buildQuickCard(context, Icons.category, "Categories",
-                      CategoriesScreen()),
-                  const SizedBox(width: 12),
-                  _buildQuickCard(
-                      context, Icons.account_balance, "Banks", BanksScreen()),
-                  const SizedBox(width: 12),
-                  _buildQuickCard(
-                      context, Icons.savings, "Schemes", SchemesScreen()),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: Row(
-                children: [
-                  _buildQuickCard(context, Icons.tour, "Take a tour",
-                      OnboardingTips(onFinish: () => Navigator.pop(context))),
-                  const SizedBox(width: 12),
-                  _buildQuickCard(
-                      context, Icons.track_changes, "Track", TrackingScreen()),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text('Popular Categories',
-                  style: Theme.of(context).textTheme.titleMedium),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 140,
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                scrollDirection: Axis.horizontal,
-                itemCount: categories.length,
-                itemBuilder: (context, index) {
-                  final c = categories[index];
-                  return GestureDetector(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (ctx) => ServicesScreen(
-                                category: c.name, services: c.services))),
-                    child: Container(
-                      width: 120,
-                      margin: const EdgeInsets.only(right: 12),
-                      child: Card(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        elevation: 3,
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (c.iconUrl.isEmpty)
-                                const Icon(Icons.category, size: 48)
-                              else if (c.iconUrl.startsWith('http'))
-                                Image.network(c.iconUrl,
-                                    height: 48,
-                                    width: 48,
-                                    errorBuilder: (a, b, c) =>
-                                        const Icon(Icons.category))
-                              else
-                                Image.asset('assets/${c.iconUrl}',
-                                    height: 48,
-                                    width: 48,
-                                    errorBuilder: (a, b, c) =>
-                                        const Icon(Icons.category)),
-                              const SizedBox(height: 8),
-                              Text(c.name,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold)),
-                            ],
-                          ),
-                        ),
+          const SizedBox(height: 20),
+          CarouselSlider(
+            items: images.map((image) {
+              return Builder(
+                builder: (BuildContext context) {
+                  return Container(
+                    width: MediaQuery.of(context).size.width,
+                    margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                    decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(10),
+                      image: DecorationImage(
+                        image: NetworkImage(image),
+                        fit: BoxFit.cover,
                       ),
                     ),
                   );
                 },
-              ),
-            ),
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQuickCard(
-      BuildContext context, IconData icon, String label, Widget page) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => Navigator.push(
-            context, MaterialPageRoute(builder: (c) => page)),
-        child: Card(
-          elevation: 3,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                Icon(icon, size: 36, color: Colors.deepPurple),
-                const SizedBox(height: 8),
-                Text(label),
-              ],
+              );
+            }).toList(),
+            carouselController: _controller,
+            options: CarouselOptions(
+              autoPlay: true,
+              enlargeCenterPage: true,
+              aspectRatio: 2.0,
+              viewportFraction: 0.8,
             ),
           ),
-        ),
+          const SizedBox(height: 20),
+          if (_isAdLoaded)
+            SizedBox(
+              width: _bannerAd.size.width.toDouble(),
+              height: _bannerAd.size.height.toDouble(),
+              child: AdWidget(ad: _bannerAd),
+            ),
+          const SizedBox(height: 20),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              'All Categories',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.left,
+            ),
+          ),
+          const SizedBox(height: 10),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: categories.length,
+            itemBuilder: (context, index) {
+              final c = categories[index];
+              return ListTile(
+                leading: const Icon(Icons.folder_open),
+                title: Text(c.name),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (c) => ServicesScreen(category: c),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
     );
   }

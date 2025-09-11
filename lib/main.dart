@@ -1,53 +1,49 @@
+// lib/main.dart
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'theme_provider.dart';
-import 'screens/home_screen.dart';
-import 'screens/categories_screen.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:my_app/screens/main_screen.dart';
 
 void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
-      child: const MyApp(),
-    ),
-  );
+  WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-
     return MaterialApp(
+      title: 'My App',
       debugShowCheckedModeBanner: false,
-      title: 'My Services App',
-
-      // Theme mode controlled by ThemeProvider
-      themeMode: themeProvider.materialThemeMode,
-
-      // Light Theme
       theme: ThemeData(
-        brightness: Brightness.light,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        scaffoldBackgroundColor: Colors.white,
-        useMaterial3: true,
-      ),
-
-      // Dark Theme
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.dark,
+        primarySwatch: Colors.blue,
+        primaryColor: Colors.blue[700],
+        hintColor: Colors.amber,
+        canvasColor: Colors.grey[50],
+        cardColor: Colors.white,
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.black87),
+          bodyMedium: TextStyle(color: Colors.black54),
         ),
-        scaffoldBackgroundColor: Colors.black,
-        useMaterial3: true,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.blue[700],
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.blue[700],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
       ),
-
-      // Starting screen
-      home: const HomeScreen(),
+      home: MainScreen(),
     );
   }
 }

@@ -1,31 +1,42 @@
-import 'package:shared_preferences/shared_preferences.dart';
+// lib/screens/services_screen.dart
+
 import 'package:flutter/material.dart';
 import '../models/category.dart';
-import 'package:my_app/screens/service_form_screen.dart';
-import 'package:my_app/screens/services_screen.dart';
 import 'service_form_screen.dart';
 
 class ServicesScreen extends StatelessWidget {
-  final String category;
-  final List<Service> services;
+  final Category category;
 
   const ServicesScreen({
     Key? key,
     required this.category,
-    required this.services,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(category)),
+      appBar: AppBar(
+        title: Text(category.name),
+      ),
       body: ListView.builder(
-        itemCount: services.length,
-        itemBuilder: (context, index) {
-          final service = services[index];
-          return ListTile(
-            title: Text(service.name),
-            trailing: Text('₹${service.price.toStringAsFixed(2)}'),
+        padding: const EdgeInsets.all(12),
+        itemCount: category.services.length,
+        itemBuilder: (ctx, i) {
+          final s = category.services[i];
+          return Card(
+            child: ListTile(
+              title: Text(s.name),
+              subtitle: Text('Fee ₹${s.price.toStringAsFixed(0)}'),
+              trailing: ElevatedButton(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (c) => ServiceFormScreen(service: s),
+                  ),
+                ),
+                child: const Text('Apply'),
+              ),
+            ),
           );
         },
       ),

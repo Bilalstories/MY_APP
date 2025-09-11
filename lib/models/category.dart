@@ -1,12 +1,13 @@
+// lib/models/category.dart
+
 import 'package:flutter/material.dart';
 
 class Service {
   final String name;
   final double price;
-  final double fee; // Add this property
-  final List<dynamic> fields; // Add this property
+  final List<dynamic> fields;
 
-  Service({required this.name, required this.price, this.fee = 0.0, this.fields = const []});
+  Service({required this.name, required this.price, this.fields = const []});
 }
 
 class Category {
