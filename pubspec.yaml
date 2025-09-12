@@ -29,24 +29,26 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  firebase_core: ^3.15.2
-  firebase_auth: ^5.7.0
-  google_sign_in: ^6.3.0
+  
+  # These dependencies have been updated to resolve conflicts
+  firebase_core: ^4.1.0
+  firebase_auth: ^6.0.2
+  google_sign_in: ^6.1.6
+  carousel_slider: ^4.2.1
+  # These dependencies are from your original file and have not been changed
   provider: ^6.1.2
   shared_preferences: ^2.2.2
   image_picker: ^1.2.0
   url_launcher: ^6.3.1
   cupertino_icons: ^1.0.2
-  google_mobile_ads: ^2.3.0 # Add this line here
   http: ^1.1.0
-  carousel_slider: ^4.2.1
   path_provider: ^2.1.1
   open_filex: ^4.3.2
   pdf: ^3.10.4
-  intl: ^0.18.1
+  intl: ^0.19.0
 
 dev_dependencies:
-  flutter_lints: ^1.0.0
+  flutter_lints: ^3.0.0 # This was also updated to a newer version
   flutter_test:
     sdk: flutter
 

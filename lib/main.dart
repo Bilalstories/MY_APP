@@ -1,12 +1,10 @@
 // lib/main.dart
 
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:my_app/screens/main_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  MobileAds.instance.initialize();
   runApp(const MyApp());
 }
 

@@ -1,108 +1,162 @@
 // lib/screens/profile_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:my_app/screens/tracking_screen.dart';
-import 'package:my_app/screens/privacy_policy_screen.dart';
-import 'package:my_app/models/application.dart';
+import 'package:my_app/widgets/profile_picture_picker.dart';
+import 'package:my_app/widgets/general_profile_form.dart';
+import 'package:my_app/widgets/digital_profile_form.dart';
+import 'package:my_app/data/states_districts.dart'; // New file
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
 
-  final List<Application> userApplications = const [
-    Application(trackingNumber: '7276263372-1', serviceName: 'Aadhar Card Update', status: 'Pending'),
-    Application(trackingNumber: '7276263372-2', serviceName: 'New Passport', status: 'Completed'),
-    Application(trackingNumber: '7276263372-3', serviceName: 'Income Certificate', status: 'In Progress'),
-  ];
+  @override
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  String _selectedProfileType = 'General';
+  double _completionPercentage = 0.0;
+  List<String> _pendingFields = [];
+
+  void _updateCompletionStatus() {
+    // This is a placeholder for real logic
+    // You'll need to check the form fields and update this list and percentage
+    setState(() {
+      _pendingFields = [
+        'State',
+        'District',
+        'PAN Number', // Example pending field
+      ];
+      _completionPercentage = 50.0; // Example
+    });
+  }
+
+  void _showCompletionDetails() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Profile Completion Details'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Your profile is ${_completionPercentage.toInt()}% complete.'),
+            const SizedBox(height: 10),
+            const Text(
+              'Pending items:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            ..._pendingFields.map((field) => Text('• $field')).toList(),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 20),
-            const CircleAvatar(
-              radius: 50,
-              backgroundColor: Colors.blue,
-              child: Icon(Icons.person, size: 60, color: Colors.white),
-            ),
+            const ProfilePicturePicker(),
             const SizedBox(height: 10),
-            const Text(
-              'User Name',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 30),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'My Applications',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.left,
+            GestureDetector(
+              onTap: _showCompletionDetails,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: CircularProgressIndicator(
+                      value: _completionPercentage / 100,
+                      backgroundColor: Colors.grey[300],
+                      color: Colors.green,
+                      strokeWidth: 6.0,
+                    ),
+                  ),
+                  Text(
+                    '${_completionPercentage.toInt()}%',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 10),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: userApplications.length,
-              itemBuilder: (context, index) {
-                final app = userApplications[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: ListTile(
-                    title: Text(app.serviceName),
-                    subtitle: Text('Tracking No: ${app.trackingNumber}\nStatus: ${app.status}'),
-                    isThreeLine: true,
-                    trailing: app.status == 'Completed'
-                        ? ElevatedButton.icon(
-                            onPressed: () {
-                              // We need to implement the PDF download logic here
-                            },
-                            icon: const Icon(Icons.download, color: Colors.white),
-                            label: const Text('Download PDF', style: TextStyle(color: Colors.white)),
-                            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                          )
-                        : null,
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectedProfileType = 'General';
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _selectedProfileType == 'General' ? Theme.of(context).primaryColor : Colors.grey[200],
+                    foregroundColor: _selectedProfileType == 'General' ? Colors.white : Colors.black,
                   ),
-                );
+                  child: const Text('General'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectedProfileType = 'Digital';
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _selectedProfileType == 'Digital' ? Theme.of(context).primaryColor : Colors.grey[200],
+                    foregroundColor: _selectedProfileType == 'Digital' ? Colors.white : Colors.black,
+                  ),
+                  child: const Text('Digital'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            if (_selectedProfileType == 'General')
+              GeneralProfileForm(onUpdate: _updateCompletionStatus)
+            else
+              DigitalProfileForm(onUpdate: _updateCompletionStatus),
+            const SizedBox(height: 20),
+            const Divider(),
+            const SizedBox(height: 20),
+            ListTile(
+              leading: const Icon(Icons.account_balance_wallet_outlined),
+              title: const Text('Wallet'),
+              onTap: () {
+                // Navigate to Wallet screen
               },
             ),
-            const SizedBox(height: 30),
-            const Divider(),
             ListTile(
-              leading: const Icon(Icons.policy),
-              title: const Text('Privacy Policy'),
+              leading: const Icon(Icons.lock_outline),
+              title: const Text('Change Password'),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (c) => const PrivacyPolicyScreen()));
+                // Handle change password
               },
             ),
             ListTile(
               leading: const Icon(Icons.logout),
-              title: const Text('Log Out'),
+              title: const Text('Logout'),
               onTap: () {
-                // Log out functionality
+                // Handle logout
               },
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-class PrivacyPolicyScreen extends StatelessWidget {
-  const PrivacyPolicyScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Privacy Policy")),
-      body: const Center(child: Text("Privacy Policy Page Content")),
     );
   }
 }
