@@ -16,8 +16,13 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _widgetOptions = <Widget>[
-    HomeScreen(),
+  // This should be a dynamic value coming from your login state
+  // For now, we'll use a placeholder.
+  final String _loggedInUser = '7276263372';
+
+  // We are creating the list of widgets here so we can pass the username.
+  late final List<Widget> _widgetOptions = <Widget>[
+    HomeScreen(userNameOrNumber: _loggedInUser), // Pass the user data here
     CategoriesScreen(),
     TrackingScreen(),
     ProfileScreen(),

@@ -7,7 +7,11 @@ class Service {
   final double price;
   final List<dynamic> fields;
 
-  Service({required this.name, required this.price, this.fields = const []});
+  const Service({
+    required this.name,
+    required this.price,
+    this.fields = const [],
+  });
 }
 
 class Category {
@@ -15,5 +19,9 @@ class Category {
   final String iconUrl;
   final List<Service> services;
 
-  Category({required this.name, required this.iconUrl, required this.services});
+  const Category({
+    required this.name,
+    required this.iconUrl,
+    required this.services,
+  });
 }

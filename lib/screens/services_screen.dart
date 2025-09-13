@@ -17,6 +17,9 @@ class ServicesScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(category.name),
+        backgroundColor: Colors.blue.shade800,
+        iconTheme: IconThemeData(color: Colors.white),
+        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(12),
@@ -24,14 +27,35 @@ class ServicesScreen extends StatelessWidget {
         itemBuilder: (ctx, i) {
           final s = category.services[i];
           return Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: ListTile(
-              title: Text(s.name),
-              subtitle: Text('Fee ₹${s.price.toStringAsFixed(0)}'),
+              leading: Icon(
+                Icons.description,
+                color: Colors.blue.shade800,
+              ),
+              title: Text(
+                s.name,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                'Fee ₹${s.price.toStringAsFixed(0)}',
+                style: TextStyle(color: Colors.grey.shade600),
+              ),
               trailing: ElevatedButton(
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (c) => ServiceFormScreen(service: s),
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue.shade800,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
                 child: const Text('Apply'),
