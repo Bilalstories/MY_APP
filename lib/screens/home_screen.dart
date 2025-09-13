@@ -6,7 +6,6 @@ import 'package:my_app/screens/services_screen.dart';
 import 'package:my_app/models/category.dart';
 
 class HomeScreen extends StatefulWidget {
-  // We'll pass the logged-in user's name/number here
   final String userNameOrNumber;
 
   const HomeScreen({Key? key, required this.userNameOrNumber}) : super(key: key);
@@ -22,37 +21,73 @@ class _HomeScreenState extends State<HomeScreen> {
     'https://via.placeholder.com/600x250/900C3F/FFFFFF?text=Ad+3',
   ];
 
+  // Full list of all categories
   final List<Category> allCategories = [
     Category(
       name: 'Aadhaar',
       iconUrl: 'fingerprint',
       services: [
-        Service(name: 'Aadhaar Update', price: 200),
-        Service(name: 'New Aadhaar Card', price: 500),
+        Service(name: 'Aadhaar Update', price: 200, fields: [
+          {'type': 'text', 'label': 'Aadhaar Number'},
+          {'type': 'date', 'label': 'Date of Birth'},
+        ]),
+        Service(name: 'New Aadhaar Card', price: 500, fields: [
+          {'type': 'text', 'label': 'Full Name'},
+          {'type': 'text', 'label': 'Father\'s Name'},
+        ]),
       ],
     ),
     Category(
       name: 'PAN',
       iconUrl: 'credit_card',
       services: [
-        Service(name: 'New PAN Card', price: 150),
-        Service(name: 'PAN Correction', price: 100),
+        Service(name: 'New PAN Card', price: 150, fields: [
+          {'type': 'text', 'label': 'Full Name'},
+          {'type': 'text', 'label': 'Father\'s Name'},
+        ]),
+        Service(name: 'PAN Correction', price: 100, fields: [
+          {'type': 'text', 'label': 'Old PAN Number'},
+        ]),
       ],
     ),
     Category(
       name: 'Ration',
       iconUrl: 'local_grocery_store',
       services: [
-        Service(name: 'Ration Card Application', price: 180),
+        Service(name: 'Ration Card Application', price: 180, fields: [
+          {'type': 'text', 'label': 'Applicant Name'},
+          {'type': 'text', 'label': 'Family Members'},
+        ]),
       ],
     ),
     Category(
       name: 'Land',
       iconUrl: 'map',
       services: [
-        Service(name: 'Land Record Check', price: 300),
+        Service(name: 'Land Record Check', price: 300, fields: [
+          {'type': 'text', 'label': 'Land Area'},
+          {'type': 'text', 'label': 'Owner Name'},
+        ]),
       ],
     ),
+    Category(
+      name: 'Voter ID',
+      iconUrl: 'how_to_vote',
+      services: [
+        Service(name: 'Voter ID Registration', price: 250, fields: [
+          {'type': 'text', 'label': 'Name'},
+        ]),
+      ],
+    ),
+    // Add more categories here
+  ];
+  
+  // Quick Services list will be a subset of allCategories
+  final List<Category> quickServices = [
+    Category(name: 'Aadhaar', iconUrl: 'fingerprint', services: []),
+    Category(name: 'PAN', iconUrl: 'credit_card', services: []),
+    Category(name: 'Ration', iconUrl: 'local_grocery_store', services: []),
+    Category(name: 'Land', iconUrl: 'map', services: []),
   ];
 
   IconData getIconData(String name) {
@@ -65,6 +100,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return Icons.local_grocery_store;
       case 'map':
         return Icons.map;
+      case 'how_to_vote':
+        return Icons.how_to_vote;
       default:
         return Icons.category;
     }
@@ -95,7 +132,6 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            // Search Bar with Mic
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Container(
@@ -115,7 +151,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             
-            // User Greeting
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
@@ -128,7 +163,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(height: 16),
             
-            // Carousel Slider with Ads
             CarouselSlider(
               options: CarouselOptions(
                 height: 150,
@@ -157,7 +191,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(height: 16),
             
-            // Quick Services Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
@@ -179,14 +212,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 childAspectRatio: 0.9,
               ),
               padding: EdgeInsets.symmetric(horizontal: 16.0),
-              itemCount: allCategories.length,
+              itemCount: quickServices.length,
               itemBuilder: (context, index) {
-                final category = allCategories[index];
+                final category = quickServices[index];
+                final fullCategory = allCategories.firstWhere((cat) => cat.name == category.name);
                 return InkWell(
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (ctx) => ServicesScreen(category: category),
+                        builder: (ctx) => ServicesScreen(category: fullCategory),
                       ),
                     );
                   },
@@ -195,14 +229,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: <Widget>[
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1), // Placeholder color
+                          color: Colors.blue.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
                         padding: EdgeInsets.all(16),
                         child: Icon(
                           getIconData(category.iconUrl),
                           size: 30,
-                          color: Colors.blue.shade800, // Placeholder color
+                          color: Colors.blue.shade800,
                         ),
                       ),
                       SizedBox(height: 8),
@@ -220,7 +254,6 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             
-            // Biometric Section
             SizedBox(height: 24),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
