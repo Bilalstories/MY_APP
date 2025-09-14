@@ -1,9 +1,9 @@
-// lib/screens/home_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:my_app/screens/services_screen.dart';
 import 'package:my_app/models/category.dart';
+import 'package:my_app/screens/categories_screen.dart';
+import 'package:my_app/data/app_data.dart';
 
 class HomeScreen extends StatefulWidget {
   final String userNameOrNumber;
@@ -19,75 +19,6 @@ class _HomeScreenState extends State<HomeScreen> {
     'https://via.placeholder.com/600x250/FF5733/FFFFFF?text=Ad+1',
     'https://via.placeholder.com/600x250/C70039/FFFFFF?text=Ad+2',
     'https://via.placeholder.com/600x250/900C3F/FFFFFF?text=Ad+3',
-  ];
-
-  // Full list of all categories
-  final List<Category> allCategories = [
-    Category(
-      name: 'Aadhaar',
-      iconUrl: 'fingerprint',
-      services: [
-        Service(name: 'Aadhaar Update', price: 200, fields: [
-          {'type': 'text', 'label': 'Aadhaar Number'},
-          {'type': 'date', 'label': 'Date of Birth'},
-        ]),
-        Service(name: 'New Aadhaar Card', price: 500, fields: [
-          {'type': 'text', 'label': 'Full Name'},
-          {'type': 'text', 'label': 'Father\'s Name'},
-        ]),
-      ],
-    ),
-    Category(
-      name: 'PAN',
-      iconUrl: 'credit_card',
-      services: [
-        Service(name: 'New PAN Card', price: 150, fields: [
-          {'type': 'text', 'label': 'Full Name'},
-          {'type': 'text', 'label': 'Father\'s Name'},
-        ]),
-        Service(name: 'PAN Correction', price: 100, fields: [
-          {'type': 'text', 'label': 'Old PAN Number'},
-        ]),
-      ],
-    ),
-    Category(
-      name: 'Ration',
-      iconUrl: 'local_grocery_store',
-      services: [
-        Service(name: 'Ration Card Application', price: 180, fields: [
-          {'type': 'text', 'label': 'Applicant Name'},
-          {'type': 'text', 'label': 'Family Members'},
-        ]),
-      ],
-    ),
-    Category(
-      name: 'Land',
-      iconUrl: 'map',
-      services: [
-        Service(name: 'Land Record Check', price: 300, fields: [
-          {'type': 'text', 'label': 'Land Area'},
-          {'type': 'text', 'label': 'Owner Name'},
-        ]),
-      ],
-    ),
-    Category(
-      name: 'Voter ID',
-      iconUrl: 'how_to_vote',
-      services: [
-        Service(name: 'Voter ID Registration', price: 250, fields: [
-          {'type': 'text', 'label': 'Name'},
-        ]),
-      ],
-    ),
-    // Add more categories here
-  ];
-  
-  // Quick Services list will be a subset of allCategories
-  final List<Category> quickServices = [
-    Category(name: 'Aadhaar', iconUrl: 'fingerprint', services: []),
-    Category(name: 'PAN', iconUrl: 'credit_card', services: []),
-    Category(name: 'Ration', iconUrl: 'local_grocery_store', services: []),
-    Category(name: 'Land', iconUrl: 'map', services: []),
   ];
 
   IconData getIconData(String name) {
@@ -132,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            // Search Bar
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Container(
@@ -151,6 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             
+            // User Greeting
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
@@ -163,6 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(height: 16),
             
+            // Carousel Slider
             CarouselSlider(
               options: CarouselOptions(
                 height: 150,
@@ -191,14 +125,33 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(height: 16),
             
+            // Quick Services Section with "View All" button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Quick Services',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Quick Services',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (ctx) => CategoriesScreen(categories: allCategories),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'View All',
+                      style: TextStyle(color: Colors.blue.shade800),
+                    ),
+                  ),
+                ],
               ),
             ),
             SizedBox(height: 8),
@@ -254,6 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             
+            // Biometric Section
             SizedBox(height: 24),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -314,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                       flex: 1,
                       child: Image.network(
-                        'https://via.placeholder.com/150', // Replace with a relevant image
+                        'https://via.placeholder.com/150',
                         height: 100,
                       ),
                     ),

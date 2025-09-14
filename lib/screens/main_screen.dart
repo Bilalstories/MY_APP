@@ -1,32 +1,24 @@
-// lib/screens/main_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:my_app/screens/home_screen.dart';
 import 'package:my_app/screens/categories_screen.dart';
-import 'package:my_app/screens/profile_screen.dart';
-import 'package:my_app/screens/tracking_screen.dart';
+import 'package:my_app/models/category.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({Key? key}) : super(key: key);
+  final List<Category> allCategories;
+  final String userNameOrNumber;
+
+  const MainScreen({
+    Key? key,
+    required this.allCategories,
+    required this.userNameOrNumber,
+  }) : super(key: key);
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  _MainScreenState createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
-
-  // This should be a dynamic value coming from your login state
-  // For now, we'll use a placeholder.
-  final String _loggedInUser = '7276263372';
-
-  // We are creating the list of widgets here so we can pass the username.
-  late final List<Widget> _widgetOptions = <Widget>[
-    HomeScreen(userNameOrNumber: _loggedInUser), // Pass the user data here
-    CategoriesScreen(),
-    TrackingScreen(),
-    ProfileScreen(),
-  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -36,6 +28,13 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> _widgetOptions = <Widget>[
+      HomeScreen(userNameOrNumber: widget.userNameOrNumber),
+      CategoriesScreen(categories: widget.allCategories),
+      const Text('My Applications Screen'),
+      const Text('Profile Screen'),
+    ];
+
     return Scaffold(
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
@@ -47,12 +46,12 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.category),
+            icon: Icon(Icons.grid_view),
             label: 'Categories',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.track_changes),
-            label: 'Track',
+            icon: Icon(Icons.list_alt),
+            label: 'My Apps',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
@@ -60,7 +59,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Theme.of(context).primaryColor,
+        selectedItemColor: Colors.blue.shade800,
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
       ),
