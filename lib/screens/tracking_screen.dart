@@ -8,7 +8,6 @@ import 'package:pdf/widgets.dart' as pw;
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
-import 'package:intl/intl.dart';
 
 class TrackingScreen extends StatefulWidget {
   const TrackingScreen({Key? key}) : super(key: key);
@@ -23,6 +22,9 @@ class _TrackingScreenState extends State<TrackingScreen> {
   bool _canDownloadPdf = false;
   Map<String, dynamic> _submissionData = {};
 
+  final String _googleAppsScriptUrl =
+      "https://script.google.com/macros/s/AKfycbyFsYskrpuIPe0YJaxCSfqLo4sJjGc7zWUUiPY-8OHc7kGQTrxCjkAGWYsFrv7Lkztiqw/exec";
+
   Future<void> _trackApplication() async {
     String trackingNumber = _trackingController.text.trim();
     if (trackingNumber.isEmpty) {
@@ -32,10 +34,8 @@ class _TrackingScreenState extends State<TrackingScreen> {
       return;
     }
 
-    String scriptUrl = "YOUR_GOOGLE_APPS_SCRIPT_URL_FOR_TRACKING"; 
-    
     try {
-      final response = await http.get(Uri.parse('$scriptUrl?tracking_number=$trackingNumber'));
+      final response = await http.get(Uri.parse('$_googleAppsScriptUrl?tracking_number=$trackingNumber'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['status'] == 'Found') {
@@ -64,7 +64,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
 
   Future<void> _generatePdfAndDownload() async {
     final pdf = pw.Document();
-    
+
     pdf.addPage(
       pw.Page(
         build: (pw.Context context) {
@@ -87,7 +87,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
     final String filePath = '$dir/receipt_${_submissionData['tracking_number']}.pdf';
     final file = File(filePath);
     await file.writeAsBytes(await pdf.save());
-    
+
     await OpenFilex.open(filePath);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('PDF Downloaded!')),

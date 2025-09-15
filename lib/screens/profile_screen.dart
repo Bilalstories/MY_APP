@@ -1,161 +1,251 @@
-// lib/screens/profile_screen.dart
-
 import 'package:flutter/material.dart';
-import 'package:my_app/widgets/profile_picture_picker.dart';
-import 'package:my_app/widgets/general_profile_form.dart';
-import 'package:my_app/widgets/digital_profile_form.dart';
-import 'package:my_app/data/states_districts.dart'; // New file
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:provider/provider.dart';
+import '../theme_provider.dart';  // Must import ThemeProvider + AppThemeMode
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
-  _ProfileScreenState createState() => _ProfileScreenState();
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String _selectedProfileType = 'General';
-  double _completionPercentage = 0.0;
-  List<String> _pendingFields = [];
+  final _name = TextEditingController();
+  final _phone = TextEditingController();
+  final _occupation = TextEditingController();
+  String? _imagePath;
 
-  void _updateCompletionStatus() {
-    // This is a placeholder for real logic
-    // You'll need to check the form fields and update this list and percentage
-    setState(() {
-      _pendingFields = [
-        'State',
-        'District',
-        'PAN Number', // Example pending field
-      ];
-      _completionPercentage = 50.0; // Example
-    });
+  @override
+  void initState() {
+    super.initState();
+    _load();
   }
 
-  void _showCompletionDetails() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Profile Completion Details'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Your profile is ${_completionPercentage.toInt()}% complete.'),
-            const SizedBox(height: 10),
-            const Text(
-              'Pending items:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            ..._pendingFields.map((field) => Text('• $field')).toList(),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      ),
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    _name.text = prefs.getString('profile_name') ?? '';
+    _phone.text = prefs.getString('profile_phone') ?? '';
+    _occupation.text = prefs.getString('profile_occupation') ?? '';
+    setState(() => _imagePath = prefs.getString('profile_image'));
+  }
+
+  Future<void> _save() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('profile_name', _name.text);
+    await prefs.setString('profile_phone', _phone.text);
+    await prefs.setString('profile_occupation', _occupation.text);
+    if (_imagePath != null) await prefs.setString('profile_image', _imagePath!);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('✅ Profile saved successfully')),
     );
+  }
+
+  Future<void> _pickImage() async {
+    final p = ImagePicker();
+    final XFile? f = await p.pickImage(source: ImageSource.gallery, maxWidth: 800);
+    if (f != null) setState(() => _imagePath = f.path);
+  }
+
+  Future<void> _launch(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Could not launch")),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const ProfilePicturePicker(),
-            const SizedBox(height: 10),
-            GestureDetector(
-              onTap: _showCompletionDetails,
-              child: Stack(
-                alignment: Alignment.center,
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    Color textColor = Theme.of(context).textTheme.bodyMedium!.color!;
+
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        elevation: 0,
+        title: const Text('My Profile'),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.deepPurple, Colors.indigo],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(80),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: CircularProgressIndicator(
-                      value: _completionPercentage / 100,
-                      backgroundColor: Colors.grey[300],
-                      color: Colors.green,
-                      strokeWidth: 6.0,
+                  ChoiceChip(
+                    label: const Text('Light'),
+                    selected: themeProvider.themeMode == AppThemeMode.light,
+                    onSelected: (_) => themeProvider.setTheme(AppThemeMode.light),
+                  ),
+                  ChoiceChip(
+                    label: const Text('Dark'),
+                    selected: themeProvider.themeMode == AppThemeMode.dark,
+                    onSelected: (_) => themeProvider.setTheme(AppThemeMode.dark),
+                  ),
+                  ChoiceChip(
+                    label: const Text('System'),
+                    selected: themeProvider.themeMode == AppThemeMode.system,
+                    onSelected: (_) => themeProvider.setTheme(AppThemeMode.system),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // Profile Avatar
+          Center(
+            child: GestureDetector(
+              onTap: _pickImage,
+              child: CircleAvatar(
+                radius: 55,
+                backgroundImage: _imagePath != null ? FileImage(File(_imagePath!)) : null,
+                child: _imagePath == null
+                    ? const Icon(Icons.person, size: 60, color: Colors.white70)
+                    : null,
+                backgroundColor: Colors.deepPurple.shade200,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Profile Info Card
+          Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            elevation: 4,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _name,
+                    style: TextStyle(color: textColor),
+                    decoration: const InputDecoration(
+                      labelText: 'Full Name',
+                      prefixIcon: Icon(Icons.person),
                     ),
                   ),
-                  Text(
-                    '${_completionPercentage.toInt()}%',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _phone,
+                    style: TextStyle(color: textColor),
+                    keyboardType: TextInputType.phone,
+                    decoration: const InputDecoration(
+                      labelText: 'Phone',
+                      prefixIcon: Icon(Icons.phone),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _occupation,
+                    style: TextStyle(color: textColor),
+                    decoration: const InputDecoration(
+                      labelText: 'Occupation',
+                      prefixIcon: Icon(Icons.work),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: _save,
+                    icon: const Icon(Icons.save, color: Colors.white),
+                    label: const Text('Save Profile', style: TextStyle(color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepPurple,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          ),
+          const SizedBox(height: 20),
+
+          // Contact & Support
+          Text("Contact & Support",
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepPurple,
+                  )),
+          const SizedBox(height: 12),
+          Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            elevation: 3,
+            child: Column(
               children: [
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _selectedProfileType = 'General';
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _selectedProfileType == 'General' ? Theme.of(context).primaryColor : Colors.grey[200],
-                    foregroundColor: _selectedProfileType == 'General' ? Colors.white : Colors.black,
-                  ),
-                  child: const Text('General'),
+                ListTile(
+                  leading: const Icon(Icons.phone, color: Colors.green),
+                  title: const Text("Call Us"),
+                  onTap: () => _launch("tel:+917276263372"),
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _selectedProfileType = 'Digital';
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _selectedProfileType == 'Digital' ? Theme.of(context).primaryColor : Colors.grey[200],
-                    foregroundColor: _selectedProfileType == 'Digital' ? Colors.white : Colors.black,
-                  ),
-                  child: const Text('Digital'),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.email, color: Colors.red),
+                  title: const Text("Email Support"),
+                  onTap: () => _launch("mailto:1gmscsc@gmail.com"),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.chat, color: Colors.teal),
+                  title: const Text("WhatsApp"),
+                  onTap: () => _launch("https://wa.me/917276263372"),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.language, color: Colors.blue),
+                  title: const Text("Visit Website"),
+                  onTap: () => _launch("https://share.google/0fTjpFcSV9tMEG0oL"),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-            if (_selectedProfileType == 'General')
-              GeneralProfileForm(onUpdate: _updateCompletionStatus)
-            else
-              DigitalProfileForm(onUpdate: _updateCompletionStatus),
-            const SizedBox(height: 20),
-            const Divider(),
-            const SizedBox(height: 20),
-            ListTile(
-              leading: const Icon(Icons.account_balance_wallet_outlined),
-              title: const Text('Wallet'),
-              onTap: () {
-                // Navigate to Wallet screen
-              },
+          ),
+          const SizedBox(height: 20),
+
+          // Logout Button
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(vertical: 14),
             ),
-            ListTile(
-              leading: const Icon(Icons.lock_outline),
-              title: const Text('Change Password'),
-              onTap: () {
-                // Handle change password
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
-              onTap: () {
-                // Handle logout
-              },
-            ),
-          ],
-        ),
+            icon: const Icon(Icons.logout, color: Colors.white),
+            label: const Text("Logout", style: TextStyle(color: Colors.white)),
+            onPressed: () async {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.clear();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('🚪 Logged out successfully')),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
