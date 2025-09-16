@@ -1,13 +1,16 @@
 // lib/screens/services_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:my_app/models/category.dart';
-import 'package:my_app/screens/service_form_screen.dart';
+import '../models/category.dart';
+import 'service_form_screen.dart';
 
 class ServicesScreen extends StatelessWidget {
   final Category category;
 
-  const ServicesScreen({Key? key, required this.category}) : super(key: key);
+  const ServicesScreen({
+    Key? key,
+    required this.category,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,23 +22,44 @@ class ServicesScreen extends StatelessWidget {
         titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
       ),
       body: ListView.builder(
+        padding: const EdgeInsets.all(12),
         itemCount: category.services.length,
-        itemBuilder: (ctx, index) {
-          final service = category.services[index];
+        itemBuilder: (ctx, i) {
+          final s = category.services[i];
           return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: ListTile(
-              title: Text(service.name),
-              subtitle: Text('Price: ₹${service.price}'),
-              trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                // Navigate to the ServiceFormScreen
-                Navigator.of(context).push(
+              leading: Icon(
+                Icons.description,
+                color: Colors.blue.shade800,
+              ),
+              title: Text(
+                s.name,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                'Fee ₹${s.price.toStringAsFixed(0)}',
+                style: TextStyle(color: Colors.grey.shade600),
+              ),
+              trailing: ElevatedButton(
+                onPressed: () => Navigator.push(
+                  context,
                   MaterialPageRoute(
-                    builder: (ctx) => ServiceFormScreen(service: service),
+                    builder: (c) => ServiceFormScreen(service: s),
                   ),
-                );
-              },
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue.shade800,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text('Apply'),
+              ),
             ),
           );
         },

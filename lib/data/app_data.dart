@@ -1,69 +1,352 @@
 // lib/data/app_data.dart
 
-import '../models/category.dart';
+import 'package:flutter/material.dart';
+import 'package:my_app/models/category.dart';
+import 'package:my_app/models/form_model.dart';
+
+// Common forms
+final FormModel _commonForm = FormModel(
+  formId: "common_form",
+  fields: [
+    FormFieldModel(name: "user_name", label: "Your Full Name", inputType: "text"),
+    FormFieldModel(name: "user_phone", label: "Your Phone Number", inputType: "phone"),
+  ],
+);
+
+final FormModel _aadharForm = FormModel(
+  formId: "aadhar_form",
+  fields: [
+    ..._commonForm.fields,
+    FormFieldModel(name: "aadhar_number", label: "Aadhar Number", inputType: "number"),
+  ],
+);
+
+final FormModel _panForm = FormModel(
+  formId: "pan_form",
+  fields: [
+    ..._commonForm.fields,
+    FormFieldModel(name: "pan_number", label: "PAN Number", inputType: "text"),
+  ],
+);
 
 final List<Category> allCategories = [
   Category(
-    name: 'Aadhaar',
-    iconUrl: 'fingerprint',
+    name: "Aadhar Card Services",
+    iconData: Icons.fingerprint,
     services: [
-      Service(name: 'Aadhaar Update', price: 200, fields: [
-        {'type': 'text', 'label': 'Aadhaar Number'},
-        {'type': 'date', 'label': 'Date of Birth'},
-      ]),
-      Service(name: 'New Aadhaar Card', price: 500, fields: [
-        {'type': 'text', 'label': 'Full Name'},
-        {'type': 'text', 'label': 'Father\'s Name'},
-      ]),
+      Service(name: "New Aadhar Card", price: 250, form: _aadharForm),
+      Service(name: "Aadhar Name Correction", price: 900, form: FormModel(
+        formId: "aadhar_name_correction",
+        fields: [
+          ..._aadharForm.fields,
+          FormFieldModel(name: "current_name", label: "Current Name on Aadhar", inputType: "text"),
+          FormFieldModel(name: "new_name", label: "New Name to Correct", inputType: "text"),
+        ],
+      )),
+      Service(name: "Aadhar Card Name Correction (wife name, spelling etc.)", price: 900, form: FormModel(
+        formId: "aadhar_card_name_correction_detailed",
+        fields: [
+          ..._aadharForm.fields,
+          FormFieldModel(name: "current_details", label: "Current Name Details", inputType: "text"),
+          FormFieldModel(name: "new_details", label: "New Name to Correct", inputType: "text"),
+        ],
+      )),
+      Service(name: "Aadhar Card Address Update", price: 120, form: _aadharForm),
+      Service(name: "C/O Update", price: 120, form: _aadharForm),
+      Service(name: "Aadhar Pan Link Status", price: 20, form: FormModel(
+        formId: "aadhar_pan_link_status",
+        fields: [..._aadharForm.fields, FormFieldModel(name: "pan_number", label: "PAN Number", inputType: "text")]
+      )),
+      Service(name: "Link Your Aadhar Pan", price: 1100, form: FormModel(
+        formId: "link_aadhar_pan",
+        fields: [..._aadharForm.fields, FormFieldModel(name: "pan_number", label: "PAN Number", inputType: "text")]
+      )),
     ],
   ),
   Category(
-    name: 'PAN',
-    iconUrl: 'credit_card',
+    name: "PAN Card Services",
+    iconData: Icons.credit_card,
     services: [
-      Service(name: 'New PAN Card', price: 150, fields: [
-        {'type': 'text', 'label': 'Full Name'},
-        {'type': 'text', 'label': 'Father\'s Name'},
-      ]),
-      Service(name: 'PAN Correction', price: 100, fields: [
-        {'type': 'text', 'label': 'Old PAN Number'},
-      ]),
+      Service(name: "New PAN Card", price: 250, form: _panForm),
+      Service(name: "PAN Card Correction", price: 150, form: FormModel(
+        formId: "pan_correction",
+        fields: [
+          ..._panForm.fields,
+          FormFieldModel(name: "correction_details", label: "Details to Correct", inputType: "text"),
+        ],
+      )),
+      Service(name: "e-PAN Download", price: 50, form: _panForm),
+      Service(name: "Track PAN Status", price: 20, form: FormModel(
+        formId: "track_pan_status",
+        fields: [
+          FormFieldModel(name: "ack_number", label: "Acknowledgement Number", inputType: "text"),
+        ],
+      )),
     ],
   ),
-  Category(
-    name: 'Ration',
-    iconUrl: 'local_grocery_store',
-    services: [
-      Service(name: 'Ration Card Application', price: 180, fields: [
-        {'type': 'text', 'label': 'Applicant Name'},
-        {'type': 'text', 'label': 'Family Members'},
-      ]),
-    ],
-  ),
-  Category(
-    name: 'Land',
-    iconUrl: 'map',
-    services: [
-      Service(name: 'Land Record Check', price: 300, fields: [
-        {'type': 'text', 'label': 'Land Area'},
-        {'type': 'text', 'label': 'Owner Name'},
-      ]),
-    ],
-  ),
-  Category(
-    name: 'Voter ID',
-    iconUrl: 'how_to_vote',
-    services: [
-      Service(name: 'Voter ID Registration', price: 250, fields: [
-        {'type': 'text', 'label': 'Name'},
-      ]),
-    ],
-  ),
+  Category(name: "Bank Accounts", iconData: Icons.account_balance, services: [
+    Service(name: "Airtel Payment Bank", price: 300, form: _commonForm),
+    Service(name: "FI Bank - Zero Chargeable Bank", price: 100, form: _commonForm),
+    Service(name: "SBI Zero Balance Bank Account", price: 300, form: _commonForm),
+    Service(name: "Zero Balance Kotak Bank Account with free...", price: 300, form: _commonForm),
+    Service(name: "Union Bank Account", price: 100, form: _commonForm),
+    Service(name: "Jupiter Bank Account - Zero Balance Account", price: 100, form: _commonForm),
+    Service(name: "Kotak Mahindra Bank - 811", price: 300, form: _commonForm),
+    Service(name: "Axis Amaze Bank Account Zero Balance", price: 300, form: _commonForm),
+    Service(name: "Bank Of Baroda Account", price: 100, form: _commonForm),
+  ]),
+  Category(name: "Bharat Gas", iconData: Icons.local_gas_station, services: [
+    Service(name: "New Connection", price: 500, form: _commonForm),
+    Service(name: "Gas Booking", price: 20, form: _commonForm),
+    Service(name: "Gas Booking Refilling Status", price: 20, form: _commonForm),
+    Service(name: "KYC Update", price: 150, form: _commonForm),
+    Service(name: "Connection Transfer", price: 250, form: _commonForm),
+    Service(name: "Suraksha Certificate", price: 100, form: _commonForm),
+    Service(name: "LPG ID Link to Aadhar", price: 50, form: _commonForm),
+    Service(name: "Gas Connection to Mobile Number Link", price: 50, form: _commonForm),
+    Service(name: "Online Tracking (Order/Refilling)", price: 30, form: _commonForm),
+  ]),
+  Category(name: "Certificates", iconData: Icons.description, services: [
+    Service(name: "Agriculture Certificate", price: 250, form: _commonForm),
+    Service(name: "Birth Certificate", price: 5000, form: _commonForm),
+    Service(name: "Caste Certificate OBC", price: 250, form: _commonForm),
+    Service(name: "Caste Certificate SC", price: 250, form: _commonForm),
+    Service(name: "Caste Certificate ST", price: 250, form: _commonForm),
+    Service(name: "Character Certificate", price: 300, form: _commonForm),
+    Service(name: "Death Certificate", price: 5000, form: _commonForm),
+    Service(name: "Domicile Certificate - Age Nationality And Do...", price: 550, form: _commonForm),
+    Service(name: "EWS Certificate - Economically Weaker Secti...", price: 600, form: _commonForm),
+    Service(name: "Gazette Certificate", price: 1500, form: _commonForm),
+    Service(name: "Income Certificate", price: 200, form: _commonForm),
+    Service(name: "Marriage Certificate", price: 500, form: _commonForm),
+    Service(name: "Non Creamy Layer Certificate - Setu Office", price: 1050, form: _commonForm),
+    Service(name: "Residential Certificate - Rahiwasi Praman Pa...", price: 200, form: _commonForm),
+    Service(name: "उत्पन्न प्रमाणपत्र - Setu Office", price: 200, form: _commonForm),
+    Service(name: "7/12 Utara (Extract)", price: 50, form: _commonForm),
+    Service(name: "8A Extract", price: 50, form: _commonForm),
+    Service(name: "Property Record (PR) Card", price: 100, form: _commonForm),
+  ]),
+  Category(name: "Credit Cards, Emi Card, Cibil", iconData: Icons.credit_card, services: [
+    Service(name: "Axis Bank Credit Card", price: 100, form: _commonForm),
+    Service(name: "Bajaj EMI Card", price: 700, form: _commonForm),
+    Service(name: "AU Bank Credit Card", price: 100, form: _commonForm),
+    Service(name: "How to check CIBIL SCORE", price: 0, form: _commonForm),
+  ]),
+  Category(name: "Educational Services", iconData: Icons.school, services: [
+    Service(name: "School Admission Form", price: 200, form: _commonForm),
+    Service(name: "General Admission Form", price: 100, form: _commonForm),
+    Service(name: "RTE 25% Admission Form", price: 150, form: _commonForm),
+    Service(name: "College Admission Form", price: 250, form: _commonForm),
+    Service(name: "UG Admission Form", price: 200, form: _commonForm),
+    Service(name: "PG Admission Form", price: 250, form: _commonForm),
+    Service(name: "University Registration", price: 250, form: _commonForm),
+    Service(name: "New Registration", price: 150, form: _commonForm),
+    Service(name: "Re-registration", price: 100, form: _commonForm),
+    Service(name: "Online Counselling", price: 100, form: _commonForm),
+    Service(name: "Course Selection Counselling", price: 100, form: _commonForm),
+    Service(name: "College Selection Counselling", price: 150, form: _commonForm),
+    Service(name: "MPSC Exam Form", price: 250, form: _commonForm),
+    Service(name: "Prelims Exam Form", price: 150, form: _commonForm),
+    Service(name: "Mains Exam Form", price: 200, form: _commonForm),
+    Service(name: "UPSC Exam Form", price: 300, form: _commonForm),
+    Service(name: "All Government Job Forms", price: 200, form: _commonForm),
+    Service(name: "Form Filling", price: 150, form: _commonForm),
+    Service(name: "Document Scanning & Upload", price: 50, form: _commonForm),
+    Service(name: "Sarkari Naukri Alerts", price: 50, form: _commonForm),
+    Service(name: "Online Test Series Registration", price: 100, form: _commonForm),
+    Service(name: "Interview Guidance", price: 500, form: _commonForm),
+    Service(name: "NIOS Registration", price: 350, form: _commonForm),
+    Service(name: "IGNOU Admission Form", price: 300, form: _commonForm),
+    Service(name: "Correspondence Course Registration", price: 250, form: _commonForm),
+    Service(name: "Marksheet Correction", price: 500, form: _commonForm),
+    Service(name: "Degree Certificate Correction", price: 500, form: _commonForm),
+    Service(name: "Resume/CV Building", price: 200, form: _commonForm),
+    Service(name: "Job Application Assistance", price: 150, form: _commonForm),
+  ]),
+  Category(name: "Farmer Services", iconData: Icons.local_florist, services: [
+    Service(name: "Kisan Registration", price: 200, form: _commonForm),
+    Service(name: "PM Kisan Samman Nidhi Yojana Application", price: 150, form: _commonForm),
+    Service(name: "Kisan Credit Card (KCC) Application Assistance", price: 300, form: _commonForm),
+    Service(name: "Fasal Bima Yojana Registration", price: 200, form: _commonForm),
+  ]),
+  Category(name: "Government & Legal Services", iconData: Icons.gavel, services: [
+    Service(name: "Online FIR Registration", price: 500, form: _commonForm),
+    Service(name: "Court Document Retrieval", price: 600, form: _commonForm),
+    Service(name: "Online Affidavit Creation", price: 300, form: _commonForm),
+    Service(name: "Notary Public Services", price: 200, form: _commonForm),
+    Service(name: "e-Court Status Check", price: 50, form: _commonForm),
+    Service(name: "Legal Notice Drafting", price: 1000, form: _commonForm),
+    Service(name: "Agreement & Deed Drafting", price: 800, form: _commonForm),
+    Service(name: "Will Registration Assistance", price: 1500, form: _commonForm),
+  ]),
+  Category(name: "Government Schemes / Yojna", iconData: Icons.lightbulb, services: [
+    Service(name: "Boat Maker Yojna 2025", price: 150, form: _commonForm),
+    Service(name: "Ujwala 3 Gas Free Yojna", price: 150, form: _commonForm),
+    Service(name: "Armourer Yojna 2024", price: 300, form: _commonForm),
+    Service(name: "Instant Mudra Loan - Union Bank", price: 500, form: _commonForm),
+    Service(name: "Blacksmith (Lohar) Yojna get every year 15000", price: 300, form: _commonForm),
+    Service(name: "PMMVY - pradhan mantri matru vandana yojna", price: 300, form: _commonForm),
+    Service(name: "Mukhyamantri - Majhi Ladki Bahin Yojna Form", price: 200, form: _commonForm),
+    Service(name: "Gharbhavati Mahila Yojna (PMMVY)", price: 300, form: _commonForm),
+    Service(name: "RTE 25% Admission 2025", price: 150, form: _commonForm),
+  ]),
+  Category(name: "HP Gas", iconData: Icons.local_gas_station, services: [
+    Service(name: "New Connection", price: 500, form: _commonForm),
+    Service(name: "Gas Booking", price: 20, form: _commonForm),
+    Service(name: "Gas Booking Refilling Status", price: 20, form: _commonForm),
+    Service(name: "KYC Update", price: 150, form: _commonForm),
+    Service(name: "Connection Transfer", price: 250, form: _commonForm),
+    Service(name: "Suraksha Certificate", price: 100, form: _commonForm),
+    Service(name: "LPG ID Link to Aadhar", price: 50, form: _commonForm),
+    Service(name: "Gas Connection to Mobile Number Link", price: 50, form: _commonForm),
+    Service(name: "Online Tracking (Order/Refilling)", price: 30, form: _commonForm),
+  ]),
+  Category(name: "Indane Gas", iconData: Icons.local_gas_station, services: [
+    Service(name: "New Connection", price: 500, form: _commonForm),
+    Service(name: "Gas Booking", price: 20, form: _commonForm),
+    Service(name: "Gas Booking Refilling Status", price: 20, form: _commonForm),
+    Service(name: "KYC Update", price: 150, form: _commonForm),
+    Service(name: "Connection Transfer", price: 250, form: _commonForm),
+    Service(name: "Suraksha Certificate", price: 100, form: _commonForm),
+    Service(name: "LPG ID Link to Aadhar", price: 50, form: _commonForm),
+    Service(name: "Gas Connection to Mobile Number Link", price: 50, form: _commonForm),
+    Service(name: "Online Tracking (Order/Refilling)", price: 30, form: _commonForm),
+  ]),
+  Category(name: "Loans - Business, Personal", iconData: Icons.monetization_on, services: [
+    Service(name: "Instant Mudra Loan - Union Bank", price: 10, form: _commonForm),
+    Service(name: "PM Swanidhi Loan", price: 300, form: _commonForm),
+  ]),
+  Category(name: "Online Services & Recharge", iconData: Icons.online_prediction, services: [
+    Service(name: "Police Verification / Police Clarence", price: 400, form: _commonForm),
+    Service(name: "All Booking Services Available", price: 0, form: _commonForm),
+    Service(name: "Light Bill Pay", price: 20, form: _commonForm),
+    Service(name: "All Type Of Recharge Available", price: 0, form: _commonForm),
+    Service(name: "All Services", price: 100, form: _commonForm),
+    Service(name: "Ghati Government Hospital Bharti 357 Posts", price: 200, form: _commonForm),
+  ]),
+  Category(name: "Passport Services", iconData: Icons.card_travel, services: [
+    Service(name: "New Passport", price: 2000, form: _commonForm),
+    Service(name: "Renewal Passport", price: 2000, form: _commonForm),
+  ]),
+  Category(name: "Pension Services", iconData: Icons.elderly, services: [
+    Service(name: "Pension Form (Jeevan Pramaan Patra)", price: 150, form: _commonForm),
+    Service(name: "Digital Life Certificate (DLC) Application", price: 150, form: _commonForm),
+    Service(name: "Aadhaar-based Authentication for Pension", price: 100, form: _commonForm),
+    Service(name: "Pension Scheme Registration", price: 300, form: _commonForm),
+    Service(name: "Pension Status Check", price: 50, form: _commonForm),
+    Service(name: "Pension Grievance Registration", price: 100, form: _commonForm),
+  ]),
+  Category(name: "PF & EPFO Services", iconData: Icons.work, services: [
+    Service(name: "Know Your UAN - PF Number", price: 100, form: _commonForm),
+    Service(name: "Activate Your UAN Number - PF Number", price: 100, form: _commonForm),
+    Service(name: "UAN Forget Password - PF Password Forget", price: 100, form: _commonForm),
+    Service(name: "Download UAN Card", price: 50, form: _commonForm),
+    Service(name: "UAN Allotment and Activation", price: 150, form: _commonForm),
+    Service(name: "Face Authentication of already activated UANs", price: 100, form: _commonForm),
+    Service(name: "Instant Link Mobile Number with UAN", price: 100, form: _commonForm),
+    Service(name: "PF Withdrawal", price: 250, form: _commonForm),
+    Service(name: "PF Pension Withdrawal", price: 500, form: _commonForm),
+    Service(name: "PF Transfer - Old ID To New ID", price: 500, form: _commonForm),
+    Service(name: "Raise Claim - Scheme Certificate (10-C)", price: 300, form: _commonForm),
+    Service(name: "Raise Claim (General)", price: 250, form: _commonForm),
+    Service(name: "Track Claim", price: 50, form: _commonForm),
+    Service(name: "Download Pension Payment Order (EPS-95)", price: 150, form: _commonForm),
+    Service(name: "View Passbook", price: 50, form: _commonForm),
+    Service(name: "PF e-Nomination (Family Members Add In Nomination)", price: 100, form: _commonForm),
+    Service(name: "Register Grievance", price: 100, form: _commonForm),
+    Service(name: "Get Remittance Details by Establishment ID and Financial Year", price: 100, form: _commonForm),
+    Service(name: "Get TRRN Status", price: 50, form: _commonForm),
+    Service(name: "Search Establishment", price: 50, form: _commonForm),
+    Service(name: "Search EPFO Office", price: 50, form: _commonForm),
+    Service(name: "Account details on SMS/Missed Calls", price: 20, form: _commonForm),
+    Service(name: "Send Reminder", price: 50, form: _commonForm),
+  ]),
+  Category(name: "Ration Card", iconData: Icons.shopping_basket, services: [
+    Service(name: "Ration Card E KYC", price: 50, form: _commonForm),
+    Service(name: "New Ration Card", price: 5000, form: _commonForm),
+    Service(name: "Find Ration Card Number", price: 50, form: _commonForm),
+  ]),
+  Category(name: "RTO Services", iconData: Icons.directions_car, services: [
+    Service(name: "2 + 4 Wheeler Learning Licences", price: 2500, form: _commonForm),
+    Service(name: "HSRP Number Plate", price: 700, form: _commonForm),
+    Service(name: "Vehicle Ownership Transfer", price: 600, form: _commonForm),
+    Service(name: "2 Wheeler Learning Licence", price: 800, form: _commonForm),
+    Service(name: "4 Wheeler Learning Licences", price: 1500, form: _commonForm),
+    Service(name: "NOC (No Objection Certificate for Vehicle Tr...)", price: 700, form: _commonForm),
+    Service(name: "RC Address Change", price: 400, form: _commonForm),
+    Service(name: "Duplicate RC Issue", price: 600, form: _commonForm),
+    Service(name: "Hypothecation Removal (Loan Close)", price: 500, form: _commonForm),
+  ]),
+  Category(name: "Scholarship Forms", iconData: Icons.school, services: [
+    Service(name: "NSP Scholarship Form", price: 100, form: _commonForm),
+    Service(name: "Maha DBT Scholarship", price: 150, form: _commonForm),
+    Service(name: "Post Matric Scholarships Scheme for Minorities", price: 150, form: _commonForm),
+    Service(name: "Pre Matric Scholarships Scheme for Minorities", price: 150, form: _commonForm),
+    Service(name: "HDFC Bank Parivartan Scholarship", price: 100, form: _commonForm),
+    Service(name: "Reliance Foundation Scholarship", price: 150, form: _commonForm),
+    Service(name: "Tata Trust Scholarship", price: 150, form: _commonForm),
+    Service(name: "Aditya Birla Group Scholarship", price: 150, form: _commonForm),
+  ]),
+  Category(name: "Shop & Establishment", iconData: Icons.store, services: [
+    Service(name: "Udyam Aadhar Licence", price: 250, form: _commonForm),
+    Service(name: "Shop Act Licence", price: 250, form: _commonForm),
+    Service(name: "Food & Drug Registration Certificate", price: 0, form: _commonForm),
+    Service(name: "GST Registration", price: 1000, form: _commonForm),
+  ]),
+  Category(name: "Taxation", iconData: Icons.attach_money, services: [
+    Service(name: "GST Registration", price: 1000, form: _commonForm),
+    Service(name: "Income Tax Filing", price: 1000, form: _commonForm),
+    Service(name: "PTRC Registration", price: 250, form: _commonForm),
+    Service(name: "PTRC Payment", price: 100, form: _commonForm),
+    Service(name: "PTRC Return", price: 150, form: _commonForm),
+    Service(name: "PTEC Registration", price: 200, form: _commonForm),
+    Service(name: "PTEC Payment", price: 100, form: _commonForm),
+  ]),
+  Category(name: "Travel Services", iconData: Icons.flight, services: [
+    Service(name: "Train Ticket Booking", price: 50, form: _commonForm),
+    Service(name: "Train PNR Status Check", price: 10, form: _commonForm),
+    Service(name: "Live Train Tracking", price: 20, form: _commonForm),
+    Service(name: "Tatkal Ticket Booking", price: 150, form: _commonForm),
+    Service(name: "Bus Ticket Booking", price: 40, form: _commonForm),
+    Service(name: "Flight Ticket Booking", price: 100, form: _commonForm),
+    Service(name: "Hotel Booking Assistance", price: 150, form: _commonForm),
+    Service(name: "Visa Application Assistance", price: 1000, form: _commonForm),
+    Service(name: "Passport Photo & Lamination", price: 80, form: _commonForm),
+    Service(name: "Tour Packages (Domestic)", price: 500, form: _commonForm),
+    Service(name: "Tour Packages (International)", price: 1000, form: _commonForm),
+  ]),
+  Category(name: "Vishwakarma Yojna", iconData: Icons.build, services: [
+    Service(name: "Silai Machine Yojna", price: 500, form: _commonForm),
+    Service(name: "Hammer & Tool Kit Yojna 15000 Every Year", price: 300, form: _commonForm),
+    Service(name: "Carpenter (Suthar) Yojna", price: 300, form: _commonForm),
+    Service(name: "Armourer Yojna 2024", price: 300, form: _commonForm),
+    Service(name: "Boat Maker Yojna 2025", price: 300, form: _commonForm),
+  ]),
+  Category(name: "Voter ID Services", iconData: Icons.how_to_vote, services: [
+    Service(name: "New Voter ID", price: 100, form: _commonForm),
+    Service(name: "Voter ID Correction", price: 100, form: _commonForm),
+    Service(name: "Missing Voter ID / Missing Election Card", price: 100, form: _commonForm),
+    Service(name: "Check Your Voter ID Status", price: 50, form: _commonForm),
+    Service(name: "Voter ID Card PDF and lamination", price: 100, form: _commonForm),
+    Service(name: "Voter ID Card Home Delivery & PDF Also", price: 100, form: _commonForm),
+    Service(name: "Instant Link Mobile Number With Voter ID", price: 100, form: _commonForm),
+  ]),
 ];
 
 final List<Category> quickServices = [
-  Category(name: 'Aadhaar', iconUrl: 'fingerprint', services: []),
-  Category(name: 'PAN', iconUrl: 'credit_card', services: []),
-  Category(name: 'Ration', iconUrl: 'local_grocery_store', services: []),
-  Category(name: 'Land', iconUrl: 'map', services: []),
+  allCategories.firstWhere((cat) => cat.name == "Aadhar Card Services"),
+  allCategories.firstWhere((cat) => cat.name == "PAN Card Services"),
+  allCategories.firstWhere((cat) => cat.name == "RTO Services"),
+  allCategories.firstWhere((cat) => cat.name == "Voter ID Services"),
+  allCategories.firstWhere((cat) => cat.name == "PF & EPFO Services"),
+  allCategories.firstWhere((cat) => cat.name == "Pension Services"),
+  allCategories.firstWhere((cat) => cat.name == "Passport Services"),
+  allCategories.firstWhere((cat) => cat.name == "Government Schemes / Yojna"),
+  allCategories.firstWhere((cat) => cat.name == "Travel Services"),
+];
+
+final List<String> promotionImages = [
+  'assets/images/banner1.png',
+  'assets/images/banner2.png',
+  'assets/images/banner3.png',
 ];

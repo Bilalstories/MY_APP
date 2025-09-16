@@ -1,14 +1,10 @@
 import 'package:my_app/screens/services_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:my_app/models/category.dart';
+import '../data/categories.dart';
+import 'services_screen.dart';
 
 class CategoriesScreen extends StatelessWidget {
-  final List<Category> categories;
-
-  const CategoriesScreen({
-    Key? key,
-    required this.categories,
-  }) : super(key: key);
+  const CategoriesScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,50 +26,40 @@ class CategoriesScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('All Services'),
-        backgroundColor: Colors.blue.shade800,
-      ),
+      appBar: AppBar(title: const Text('Categories')),
       body: GridView.builder(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(10),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
-          crossAxisSpacing: 10.0,
-          mainAxisSpacing: 10.0,
-          childAspectRatio: 0.9,
+          childAspectRatio: 0.8,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
         ),
         itemCount: categories.length,
-        itemBuilder: (context, i) {
+        itemBuilder: (ctx, i) {
           final category = categories[i];
-          return InkWell(
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (c) => ServicesScreen(category: category),
-                ),
-              );
-            },
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
-                    shape: BoxShape.circle,
+          
+          return Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (c) => ServicesScreen(category: category),
                   ),
-                  padding: const EdgeInsets.all(16),
-                  child: Icon(
-                    getIconData(category.iconUrl),
-                    size: 30,
-                    color: Colors.blue.shade800,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  category.name,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                );
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.category, size: 50, color: Colors.blue),
+                  const SizedBox(height: 8),
+                  Text(
+                    category.name,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                   textAlign: TextAlign.center,
                 ),

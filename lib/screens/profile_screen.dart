@@ -1,199 +1,157 @@
-// lib/screens/profile_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:my_app/widgets/profile_picture_picker.dart';
 import 'package:my_app/widgets/general_profile_form.dart';
 import 'package:my_app/widgets/digital_profile_form.dart';
 import 'package:my_app/data/states_districts.dart'; // New file
 
-// Assuming you have a ThemeProvider to manage app themes
-// If not, you'll need to create one.
-// Example:
-// class ThemeProvider with ChangeNotifier {
-//   ThemeMode _themeMode = ThemeMode.system;
-//   ThemeMode get themeMode => _themeMode;
-//   void setThemeMode(ThemeMode mode) {
-//     _themeMode = mode;
-//     notifyListeners();
-//   }
-// }
-
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
-  _ProfileScreenState createState() => _ProfileScreenState();
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final _formKey = GlobalKey<FormState>();
+  String _selectedProfileType = 'General';
+  double _completionPercentage = 0.0;
+  List<String> _pendingFields = [];
+
+  void _updateCompletionStatus() {
+    // This is a placeholder for real logic
+    // You'll need to check the form fields and update this list and percentage
+    setState(() {
+      _pendingFields = [
+        'State',
+        'District',
+        'PAN Number', // Example pending field
+      ];
+      _completionPercentage = 50.0; // Example
+    });
+  }
+
+  void _showCompletionDetails() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Profile Completion Details'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Your profile is ${_completionPercentage.toInt()}% complete.'),
+            const SizedBox(height: 10),
+            const Text(
+              'Pending items:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            ..._pendingFields.map((field) => Text('• $field')).toList(),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    // A function to get the current theme mode
-    final ThemeMode currentThemeMode = Theme.of(context).brightness == Brightness.dark 
-      ? ThemeMode.dark 
-      : ThemeMode.light;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        backgroundColor: Colors.blue.shade800,
-        iconTheme: const IconThemeData(color: Colors.white),
-        titleTextStyle: const TextStyle(color: Colors.white, fontSize: 20),
-        centerTitle: false,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.only(top: 24.0, left: 16.0, right: 16.0),
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Profile Image and Name
-            Column(
+            const ProfilePicturePicker(),
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: _showCompletionDetails,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: CircularProgressIndicator(
+                      value: _completionPercentage / 100,
+                      backgroundColor: Colors.grey[300],
+                      color: Colors.green,
+                      strokeWidth: 6.0,
+                    ),
+                  ),
+                  Text(
+                    '${_completionPercentage.toInt()}%',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.blue.shade100,
-                  child: Icon(Icons.person, size: 60, color: Colors.blue.shade800),
-                ),
-                const SizedBox(height: 12),
-                const Text(
-                  'User Name',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectedProfileType = 'General';
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _selectedProfileType == 'General' ? Theme.of(context).primaryColor : Colors.grey[200],
+                    foregroundColor: _selectedProfileType == 'General' ? Colors.white : Colors.black,
                   ),
+                  child: const Text('General'),
                 ),
-                const Text(
-                  'user.email@example.com',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectedProfileType = 'Digital';
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _selectedProfileType == 'Digital' ? Theme.of(context).primaryColor : Colors.grey[200],
+                    foregroundColor: _selectedProfileType == 'Digital' ? Colors.white : Colors.black,
                   ),
+                  child: const Text('Digital'),
                 ),
               ],
             ),
-            const SizedBox(height: 32),
-
-            // Theme Options
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'App Theme',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildThemeButton(
-                        context,
-                        'Day',
-                        Icons.wb_sunny_rounded,
-                        ThemeMode.light,
-                        currentThemeMode,
-                      ),
-                      _buildThemeButton(
-                        context,
-                        'Night',
-                        Icons.nights_stay_rounded,
-                        ThemeMode.dark,
-                        currentThemeMode,
-                      ),
-                      _buildThemeButton(
-                        context,
-                        'System',
-                        Icons.smartphone_rounded,
-                        ThemeMode.system,
-                        currentThemeMode,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            const SizedBox(height: 20),
+            if (_selectedProfileType == 'General')
+              GeneralProfileForm(onUpdate: _updateCompletionStatus)
+            else
+              DigitalProfileForm(onUpdate: _updateCompletionStatus),
+            const SizedBox(height: 20),
+            const Divider(),
+            const SizedBox(height: 20),
+            ListTile(
+              leading: const Icon(Icons.account_balance_wallet_outlined),
+              title: const Text('Wallet'),
+              onTap: () {
+                // Navigate to Wallet screen
+              },
             ),
-            const SizedBox(height: 32),
-
-            // Profile Form
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: 'Full Name',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.person),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.email),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: 'Phone Number',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.phone),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Handle form submission
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue.shade800,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text('Update Profile'),
-                    ),
-                  ],
-                ),
-              ),
+            ListTile(
+              leading: const Icon(Icons.lock_outline),
+              title: const Text('Change Password'),
+              onTap: () {
+                // Handle change password
+              },
             ),
-            const SizedBox(height: 24),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () {
+                // Handle logout
+              },
+            ),
           ],
         ),
       ),

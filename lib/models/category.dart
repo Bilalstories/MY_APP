@@ -1,27 +1,28 @@
 // lib/models/category.dart
 
 import 'package:flutter/material.dart';
+import 'package:my_app/models/form_model.dart';
+
+class Category {
+  const Category({
+    required this.name,
+    required this.iconData,
+    required this.services,
+  });
+
+  final String name;
+  final IconData iconData;
+  final List<Service> services;
+}
 
 class Service {
-  final String name;
-  final double price;
-  final List<dynamic> fields;
-
   const Service({
     required this.name,
     required this.price,
-    this.fields = const [],
+    required this.form,
   });
-}
 
-class Category {
   final String name;
-  final String iconUrl;
-  final List<Service> services;
-
-  const Category({
-    required this.name,
-    required this.iconUrl,
-    required this.services,
-  });
+  final int price;
+  final FormModel form;
 }
